@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     # PostgreSQL
     postgres_host: str = "localhost"
-    postgres_port: int = 5432
+    postgres_port: int = 5433
     postgres_db: str = "cryptodb"
     postgres_user: str = "crypto"
     postgres_password: str = "crypto123"
@@ -28,6 +28,18 @@ class Settings(BaseSettings):
     # Spike detector
     spike_window_size: int = 10
     spike_threshold_pct: float = 0.5
+
+    # Resilience
+    max_retries: int = 5
+    dlq_topic: str = "crypto-prices-dlq"
+
+    # Logging
+    log_level: str = "INFO"
+    log_format: str = "console"  # "console" or "json"
+
+    # Metrics
+    producer_metrics_port: int = 8000
+    consumer_metrics_port: int = 8001
 
 
 settings = Settings()

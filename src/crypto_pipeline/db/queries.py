@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from crypto_pipeline.db.connection import get_conn
+from crypto_pipeline.metrics import db_write_duration, db_writes
 
 
 def create_tables() -> None:
@@ -29,12 +30,14 @@ def create_tables() -> None:
 
 
 def insert_tick(coin: str, price: float, timestamp: datetime) -> None:
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "INSERT INTO price_ticks (coin, price_usd, timestamp) VALUES (%s, %s, %s)",
-                (coin, price, timestamp),
-            )
+    with db_write_duration.labels(table="price_ticks").time():
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO price_ticks (coin, price_usd, timestamp) VALUES (%s, %s, %s)",
+                    (coin, price, timestamp),
+                )
+    db_writes.labels(table="price_ticks").inc()
 
 
 def insert_alert(
@@ -45,11 +48,13 @@ def insert_alert(
     direction: str,
     timestamp: datetime,
 ) -> None:
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """INSERT INTO price_alerts
-                   (coin, current_price, avg_price, change_pct, direction, timestamp)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
-                (coin, current_price, avg_price, change_pct, direction, timestamp),
-            )
+    with db_write_duration.labels(table="price_alerts").time():
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """INSERT INTO price_alerts
+                       (coin, current_price, avg_price, change_pct, direction, timestamp)
+                       VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (coin, current_price, avg_price, change_pct, direction, timestamp),
+                )
+    db_writes.labels(table="price_alerts").inc()

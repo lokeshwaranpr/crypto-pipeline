@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose *)",
+      "Bash(pip install *)",
+      "Bash(python -c \"from crypto_pipeline.logging_config import configure_logging; from crypto_pipeline.metrics import messages_published; from crypto_pipeline.producer import _fetch_prices; configure_logging\\(\\); import structlog; log = structlog.get_logger\\(\\); log.info\\('smoke.test', status='ok'\\)\")",
+      "Bash(python -c \"from crypto_pipeline.config import settings; print\\('host:', settings.postgres_host\\); print\\('port:', settings.postgres_port\\); print\\('db:', settings.postgres_db\\); print\\('user:', settings.postgres_user\\); print\\('pass:', settings.postgres_password\\)\")",
+      "Bash(docker exec *)",
+      "Bash(python -c \"import psycopg2; conn = psycopg2.connect\\(host='127.0.0.1', port=5432, dbname='cryptodb', user='crypto', password='crypto123'\\); print\\('connected ok'\\); conn.close\\(\\)\")",
+      "Bash(python -c \"import socket; s = socket.create_connection\\(\\('127.0.0.1', 5432\\), timeout=3\\); print\\('port reachable'\\); s.close\\(\\)\")",
+      "Bash(netstat -ano)",
+      "PowerShell(Get-Process -Id 1936, 7296)",
+      "PowerShell(Get-Process | Where-Object { $_.Id -eq 1936 -or $_.Id -eq 7296 } | Format-List Id, ProcessName, Path)",
+      "Bash(python -c \"import psycopg2; conn = psycopg2.connect\\(host='127.0.0.1', port=5433, dbname='cryptodb', user='crypto', password='crypto123'\\); print\\('connected ok'\\); conn.close\\(\\)\")",
+      "Bash(pip show *)",
+      "Bash(python -c \"from crypto_pipeline.producer import main; from crypto_pipeline.smart_consumer import main, DeadLetterQueue, SpikeDetector; print\\('imports ok'\\)\")",
+      "Bash(alembic init *)",
+      "Bash(alembic revision *)",
+      "Bash(alembic upgrade *)",
+      "Bash(alembic current *)"
+    ]
+  }
+}
