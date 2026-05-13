@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     max_retries: int = 5
     dlq_topic: str = "crypto-prices-dlq"
 
+    # API
+    api_host: str = "0.0.0.0"
+    api_port: int = 8080
+
     # Logging
     log_level: str = "INFO"
     log_format: str = "console"  # "console" or "json"

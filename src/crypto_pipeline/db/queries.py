@@ -58,3 +58,73 @@ def insert_alert(
                     (coin, current_price, avg_price, change_pct, direction, timestamp),
                 )
     db_writes.labels(table="price_alerts").inc()
+
+
+def get_latest_prices() -> list[dict]:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT DISTINCT ON (coin) coin, price_usd, timestamp
+                FROM price_ticks
+                ORDER BY coin, timestamp DESC
+            """)
+            return [
+                {"coin": r[0], "price_usd": r[1], "timestamp": r[2].isoformat()}
+                for r in cur.fetchall()
+            ]
+
+
+def get_price_history(coin: str, limit: int = 50) -> list[dict]:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT coin, price_usd, timestamp
+                FROM price_ticks
+                WHERE coin = %s
+                ORDER BY timestamp DESC
+                LIMIT %s
+                """,
+                (coin, limit),
+            )
+            return [
+                {"coin": r[0], "price_usd": r[1], "timestamp": r[2].isoformat()}
+                for r in cur.fetchall()
+            ]
+
+
+def get_alerts(coin: str | None = None, limit: int = 20) -> list[dict]:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            if coin:
+                cur.execute(
+                    """
+                    SELECT coin, current_price, avg_price, change_pct, direction, timestamp
+                    FROM price_alerts
+                    WHERE coin = %s
+                    ORDER BY timestamp DESC
+                    LIMIT %s
+                    """,
+                    (coin, limit),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT coin, current_price, avg_price, change_pct, direction, timestamp
+                    FROM price_alerts
+                    ORDER BY timestamp DESC
+                    LIMIT %s
+                    """,
+                    (limit,),
+                )
+            return [
+                {
+                    "coin": r[0],
+                    "current_price": r[1],
+                    "avg_price": r[2],
+                    "change_pct": r[3],
+                    "direction": r[4],
+                    "timestamp": r[5].isoformat(),
+                }
+                for r in cur.fetchall()
+            ]
